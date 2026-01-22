@@ -8,24 +8,29 @@
             font-family: Arial, sans-serif;
             background: #111;
             color: #fff;
+            padding: 20px;
+        }
+        h1 {
+            margin-bottom: 20px;
         }
         .game {
             display: flex;
             align-items: center;
             gap: 15px;
-            padding: 10px;
+            padding: 12px;
             background: #222;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
             border-radius: 8px;
         }
         .game img {
             width: 48px;
             height: 48px;
+            border-radius: 6px;
         }
-        a {
+        .game a {
             color: #4af;
-            text-decoration: none;
             font-size: 20px;
+            text-decoration: none;
         }
     </style>
 </head>
@@ -36,32 +41,31 @@
 
 <script>
 async function loadGames() {
-    // Fetch directory listing from /games
     const res = await fetch('/games/');
     const text = await res.text();
 
-    // Parse folder names from Apache/Nginx autoindex
     const parser = new DOMParser();
     const doc = parser.parseFromString(text, 'text/html');
 
-    const links = [...doc.querySelectorAll('a')]
+    // Netlify directory listing: <a href="game1/">game1/</a>
+    const folders = [...doc.querySelectorAll('a')]
         .map(a => a.getAttribute('href'))
-        .filter(href => href.endsWith('/') && href !== '../');
+        .filter(h => h.endsWith('/') && h !== '../');
 
     const container = document.getElementById('games');
 
-    links.forEach(folder => {
-        const gameName = folder.replace('/', '');
+    folders.forEach(folder => {
+        const name = folder.replace('/', '');
 
-        const gameDiv = document.createElement('div');
-        gameDiv.className = 'game';
+        const div = document.createElement('div');
+        div.className = 'game';
 
-        gameDiv.innerHTML = `
-            <img src="/games/${gameName}/favicon.ico" onerror="this.src='default.png'">
-            <a href="/games/${gameName}/">${gameName}</a>
+        div.innerHTML = `
+            <img src="/games/${name}/favicon.ico" onerror="this.src='https://via.placeholder.com/48'">
+            <a href="/games/${name}/">${name}</a>
         `;
 
-        container.appendChild(gameDiv);
+        container.appendChild(div);
     });
 }
 
