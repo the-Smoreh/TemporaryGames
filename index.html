@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Game Launcher</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #111;
+            color: #fff;
+        }
+        .game {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 10px;
+            background: #222;
+            margin-bottom: 10px;
+            border-radius: 8px;
+        }
+        .game img {
+            width: 48px;
+            height: 48px;
+        }
+        a {
+            color: #4af;
+            text-decoration: none;
+            font-size: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Available Games</h1>
+<div id="games"></div>
+
+<script>
+async function loadGames() {
+    // Fetch directory listing from /games
+    const res = await fetch('/games/');
+    const text = await res.text();
+
+    // Parse folder names from Apache/Nginx autoindex
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(text, 'text/html');
+
+    const links = [...doc.querySelectorAll('a')]
+        .map(a => a.getAttribute('href'))
+        .filter(href => href.endsWith('/') && href !== '../');
+
+    const container = document.getElementById('games');
+
+    links.forEach(folder => {
+        const gameName = folder.replace('/', '');
+
+        const gameDiv = document.createElement('div');
+        gameDiv.className = 'game';
+
+        gameDiv.innerHTML = `
+            <img src="/games/${gameName}/favicon.ico" onerror="this.src='default.png'">
+            <a href="/games/${gameName}/">${gameName}</a>
+        `;
+
+        container.appendChild(gameDiv);
+    });
+}
+
+loadGames();
+</script>
+
+</body>
+</html>
